@@ -29,10 +29,22 @@ class Worker(object):
         elif mapreduce_class == 'hammingencode':
           mapper = job.HammingEncodeMap
           reducer = job.HammingEncodeReduce
+        elif mapreduce_class == 'hammingdecode':
+          mapper = job.HammingDecodeMap
+          reducer = job.HammingDecodeReduce
+        elif mapreduce_class == 'hammingerror':
+          mapper = job.HammingErrorMap
+          reducer = job.HammingErrorReduce
+        elif mapreduce_class == 'hammingcheck':
+          mapper = job.HammingCheckMap
+          reducer = job.HammingCheckReduce
+        elif mapreduce_class == 'hammingfix':
+          mapper = job.HammingFixMap
+          reducer = job.HammingFixReduce
+        
         engine = mapreduce.Engine(sub, mapper, reducer)
         engine.execute()
         result_list = engine.get_result_list()
-        
         gevent.sleep(2)
         return result_list  
 

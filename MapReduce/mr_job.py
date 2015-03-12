@@ -42,8 +42,7 @@ class mr_job(object):
       elif method in ['hamming_enc','hamming_dec','hamming_err','hamming_chk','hamming_fix']:
         if method == 'hamming enc' and (split_size % 2 != 0):
           print 'split size should be multiple of 2'
-        if method in ['hamming_dec','hamming_err','hamming_chk','hamming_fix'] and (split_size %3 !=
-          0):
+        if method in ['hamming_dec','hamming_err','hamming_chk','hamming_fix'] and (split_size %3 != 0):
           print 'split size should be multiple of 3'
         # build chunk_list
         offset = 0
@@ -88,19 +87,12 @@ if __name__ == '__main__':
   # build chunk list
   job.build_chunk_list(method,split_size,inputfile)
     
-    #print 'chunk_list type is ' , type(chunk_list)
-    #ip = socket.gethostbyname(socket.gethostname())
-    #port = '4243'
-    #s.bind('tcp://'+ip+':'+port)
-
   c = zerorpc.Client()
-  # = zerorpc.Server()
   c.connect('tcp://'+ master_addr)
   result = c.do_job(method, chunk_list)
-  #print 'SUCCESS !'
-  #print result
-
-'''
+  
+  
+  '''
     if method == "wordcount":
 
         offset = 0

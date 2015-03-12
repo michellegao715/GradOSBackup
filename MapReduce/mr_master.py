@@ -6,7 +6,7 @@ import gevent
 import mapreduce
 import itertools
 import job
-
+from zerorpc.exceptions import TimeoutExpired
 
 STATE_UNASSIGNED     = 'UNASSIGNED'
 STATE_WORKING    = 'WORKING'
@@ -45,16 +45,19 @@ class Master(object):
                 print '(%s,%s,%s)' % (w[0], w[1], self.workers[w][0]),
             print
             for w in self.workers:
+              print 'try ping worker'
               try:
-                self.workers[w][1].ping()
-              except e:
-                print 'exception when ping workers' 
+                res = self.workers[w][1].ping()
+                #TODO deal with worker failure.
+                print 'ping from master'
+              except TimeoutExpired:
+                print 'worker failure '+w[0]
             gevent.sleep(1)
 
     def register_async(self, ip, port):
         print '[Master:%s] ' % self.state,
         print 'Registered worker (%s,%s)' % (ip, port)
-        c = zerorpc.Client()
+        c = zerorpc.Client(timeout=1)  #set timeout for worker
         c.connect("tcp://" + ip + ':' + port)
         self.workers[(ip,port)] = ('READY', c)
         c.ping()
@@ -70,7 +73,6 @@ class Master(object):
         print 'Entered Master do_job'
         # Add chunk_list to our Bookkeeper
         Bookkeeper = []
-
 
         j = 0
         while (j < len(chunk_list)):
