@@ -7,22 +7,19 @@ import pickle
 
 # python mr_job <ip_address_master:port> wordcount 100000 4 book.txt count
 # python mr_job.py 0.0.0.0:4242 wordcount 10 3 test.txt count
+# python mr_job.py 0.0.0.0 wordcount 100 4 StarSpangleBanner.txt count
 
 class mr_job(object):
     def __init__(self):
       pass
     def build_chunk_list(self, method, split_size, inputfile):
+      chunk_list = []
       if method == "wordcount":
-
         offset = 0
         i = split_size
         # Number of bytes in input file
         input_file_bytes = os.path.getsize(inputfile)
-        print 'number of bytes in input file is ', input_file_bytes , ' with type ',  type(input_file_bytes)
-        print 'split size is ' , split_size , ' with type ',  type(split_size)
-
         while i < input_file_bytes:
-
             chunk_data = []
             print 'inside while loop with i ' , i
             f.seek(i)
@@ -36,7 +33,6 @@ class mr_job(object):
                 offset = f.tell()
                 print 'After adding chunk, new offset is ', offset
                 i = offset + split_size
-            
             else:
                 i = i + 1
       elif method in ['hamming_enc','hamming_dec','hamming_err','hamming_chk','hamming_fix']:
@@ -82,11 +78,11 @@ if __name__ == '__main__':
   outputBase = sys.argv[6]
 
     # Create a list of all chunks
-  chunk_list = []
   f = open(inputfile)
   # build chunk list
-  job.build_chunk_list(method,split_size,inputfile)
-    
+  chunk_list = job.build_chunk_list(method,split_size,inputfile)
+
+
   c = zerorpc.Client()
   c.connect('tcp://'+ master_addr)
   result = c.do_job(method, chunk_list)

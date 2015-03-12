@@ -68,13 +68,7 @@ class Engine(object):
     def get_result_list(self):
         return self.result_list
 
-if __name__ == '__main__':
-    values = ['foo', 'bar', 'baz']
-    engine = Engine(values, Map, Reduce)
-    engine.execute()
-
-
-
+  
 
 
 
