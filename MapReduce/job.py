@@ -5,8 +5,10 @@ class WordCount(object):
     self.input_chunk = input_chunk
     self.map_class = map_class
     self.reduce_class = reduce_class 
-    self.result_list = None 
+    self.result_list = []
 
+  def get_result_list(self):
+    return self.result_list
 class WordCountMap(mapreduce.Map):
     def __init__(self):
       self.table = {}
@@ -30,12 +32,20 @@ class WordCountMap(mapreduce.Map):
       return self.table
 class WordCountReduce(mapreduce.Reduce):
     def reduce(self, k, vlist):
-        count = 0
-        for v in vlist:
-            count = count + int(v)
-        self.emit(k + ':' + str(count))
+      count = 0
+      for v in vlist:
+        print ' value in vlist '+v
+        count = count + int(v)
+      self.emit(k + ':' + str(count))
+      
+    def emit(self,v):
+      self.result_list.append(v)
+    
+    def get_result_list(self):
+      return self.result_list
 
 class HammingEncodeMap(mapreduce.Map):
   pass 
 class HammingEncodeReduce(mapreduce.Reduce):
   pass
+      

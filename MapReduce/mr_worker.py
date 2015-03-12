@@ -49,15 +49,14 @@ class Worker(object):
        # reduce phase 
         for k in keys:
           reducer.reduce(k,table[k])
-        result_list = self.get_result_list() #call following get_result_list()
         print 'print out map reduce results......................'
-        print result_list 
+        #self.result_list = job.WordCount.get_result_list(wordcount)
+        self.result_list = reducer.get_result_list()
+        print self.result_list
 
-    def get_result_list(self):
-      return self.result_list
 
-
-chunk = {'ab','abc','ab','abc'}
+    
+chunk = ['cba','ab','abc','ab','abc']
 method = 'wordcount'
 w  = Worker(chunk, method)
 w.do_work(method,chunk)
