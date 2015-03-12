@@ -64,7 +64,16 @@ class Master(object):
 
     def register(self, ip, port):
         gevent.spawn(self.register_async, ip, port)
-
+    
+    '''  pseudocode
+      data = input.split()
+      res = []
+      for i in len(workers)
+        res.append(workers[i].map(data[i]))
+      sorted_res = sort(res)  #sort by byteOffset(key) 
+      for i in n_reducers:
+        reducers[i].reduce(sorted res[i])    '''  
+       
     def do_job(self, mapreduce_method, chunk_list):
       print 'Entered Master do_job'
       # Add chunk_list to our Bookkeeper
@@ -80,18 +89,6 @@ class Master(object):
       while (k < len(Bookkeeper)):
         print 'Row ' , k , 'has chunk number : ', Bookkeeper[k].chunk_number , ' with offset' , Bookkeeper[k].offset , ' with length ' , Bookkeeper[k].length , 'with state ' , Bookkeeper[k].state
         k = k + 1
-    
-      # TODO   split tasks from chunk_list and let workers map+reduce 
-      '''  pseudocode
-      data = input.split()
-      res = []
-      for i in len(workers)
-        res.append(workers[i].map(data[i]))
-      sorted_res = sort(res)  #sort by byteOffset(key) 
-      for i in n_reducers:
-        reducers[i].reduce(sorted res[i])    '''  
-        
-     
      
      # TODO: Add a finished job method. This will iterate through all rows in "Bookkeeper"
         # and if all states are Finished, it will return TRUE

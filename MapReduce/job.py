@@ -6,7 +6,6 @@ class WordCount(object):
     self.map_class = map_class
     self.reduce_class = reduce_class 
     self.result_list = []
-
   def get_result_list(self):
     return self.result_list
 class WordCountMap(mapreduce.Map):
@@ -23,10 +22,11 @@ class WordCountMap(mapreduce.Map):
         self.table[k] = [v]
       
       ''' split mapped(emmitted) results to different reducers:
-      {'apple':[1,1,1], 'pear':[1,1,1], 'orange':[1,1], 'melon':[1,1]}  --> two reducers:  r1:(apple,melon)  r2:(pear,orange) 
-        '''
+      result of one mapper: 
+      {'apple':[1,1,1], 'pear':[1,1,1], 'orange':[1,1], 'melon':[1,1]}  
+      --> two reducers:  r1:(apple,melon)  r2:(pear,orange)  ''' 
     def partition(self,k,num_reducers):
-      # TODO overrdie hash() 
+      # TODO  partition keys to different reducers 
       return hash(k)%num_reducers   
     def get_table(self):
       return self.table
@@ -34,7 +34,6 @@ class WordCountReduce(mapreduce.Reduce):
     def reduce(self, k, vlist):
       count = 0
       for v in vlist:
-        print ' value in vlist '+v
         count = count + int(v)
       self.emit(k + ':' + str(count))
       
