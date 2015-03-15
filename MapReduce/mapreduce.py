@@ -4,7 +4,7 @@ class Map(object):
 
     def __init__(self):
         self.table = {}
-
+        self.maplist = []
     def map(self, k, v):
         pass
 
@@ -16,6 +16,9 @@ class Map(object):
 
     def get_table(self):
         return self.table
+
+a:[1,1,1]     a[1,1]  
+b[1]          b[1,1]  
 
 
 class Reduce(object):
