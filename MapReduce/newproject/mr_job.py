@@ -46,7 +46,7 @@ class split(object):
           print 'split size should be multiple of 2'
         if method in ['hamming_dec','hamming_err','hamming_chk','hamming_fix'] and (split_size %3 != 0):
           print 'split size should be multiple of 3'
-        # build chunk_list
+        # build self.chunk_list
         offset = 0
         # Number of bytes in input file
         input_file_bytes = os.path.getsize(inputfile)
@@ -62,7 +62,7 @@ class split(object):
                 length = input_file_bytes - offset
             chunk_data.append(offset)
             chunk_data.append(length)
-            chunk_list.append(chunk_data)
+            self.chunk_list.append(chunk_data)
             counter = counter + 1
       # Testing. 
     print ' After chunk list creation'
@@ -86,10 +86,10 @@ if __name__ == '__main__':
   f = open(input_file)
   chunk_list = job.split_into_chunks(method_class,split_size,input_file)
   
-  # pass mapreduce tasks(chunk_list, #ofReducers, method_class) to master. 
+  # pass mapreduce tasks(self.chunk_list, #ofReducers, method_class) to master. 
   '''c = zerorpc.Client()
   c.connect("tcp://"+master_addr)
-  result = c.do_job(method_class, chunk_list, num_reducers) '''
+  result = c.do_job(method_class, self.chunk_list, num_reducers) '''
 
   
 
