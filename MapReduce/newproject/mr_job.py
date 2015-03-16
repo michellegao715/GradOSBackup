@@ -87,9 +87,9 @@ if __name__ == '__main__':
   chunk_list = job.split_into_chunks(method_class,split_size,input_file)
   
   # pass mapreduce tasks(self.chunk_list, #ofReducers, method_class) to master. 
-  '''c = zerorpc.Client()
+  c = zerorpc.Client()
   c.connect("tcp://"+master_addr)
-  result = c.do_job(method_class, self.chunk_list, num_reducers) '''
+  result = c.mapreduce(method_class, chunk_list, num_reducers)
 
   
 
