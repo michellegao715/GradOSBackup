@@ -73,7 +73,7 @@ if __name__ == '__main__':
   master_addr = sys.argv[1] #<ipaddress:port>
   method = sys.argv[2]
   split_size = int(sys.argv[3])
-  num_reducers = sys.argv[4]
+  num_reducers = int(sys.argv[4])
   inputfile = sys.argv[5]
   outputBase = sys.argv[6]
 

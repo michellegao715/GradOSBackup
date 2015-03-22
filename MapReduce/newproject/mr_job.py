@@ -18,7 +18,6 @@ class split(object):
         print 'size of file is '+str(input_file_bytes)
         while i < input_file_bytes:
             chunk_data = []
-            print 'inside while loop with i ' , i
             f.seek(i)
             if f.read(1) == '\n':
                 print 'Found a new line at i ' , i
@@ -65,7 +64,6 @@ class split(object):
             self.chunk_list.append(chunk_data)
             counter = counter + 1
       # Testing. 
-    print ' After chunk list creation'
     j = 0
     while (j < len(self.chunk_list)):
       print ' Chunk ' , j , ' has offset ' , self.chunk_list[j][0] , ' and length ' ,self.chunk_list[j][1]
@@ -79,7 +77,7 @@ if __name__ == '__main__':
   master_addr = sys.argv[1] #<ipaddress:port>
   method_class = sys.argv[2]
   split_size = int(sys.argv[3])
-  num_reducers = sys.argv[4]
+  num_reducers = int(sys.argv[4])
   input_file = sys.argv[5]
   output_base = sys.argv[6]
 
@@ -89,7 +87,9 @@ if __name__ == '__main__':
   # pass mapreduce tasks(self.chunk_list, #ofReducers, method_class) to master. 
   c = zerorpc.Client()
   c.connect("tcp://"+master_addr)
+  print 'before mapreduce' 
   result = c.mapreduce(method_class, chunk_list, num_reducers)
+  print 'after mapreduce'
 
   
 

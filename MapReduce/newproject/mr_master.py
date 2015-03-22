@@ -9,15 +9,31 @@ ready  = 'READY'
 working  = 'WORKING'
 finished    = 'FINISHED'
 interrupted   = 'INTERRUPTED'
-
+unassigned  = 'UNASSIGNED'
 # python mr_master.py <port> <data_dir>  
+
+
+class ChunkInformation(object):
+  def __init__(self, chunk_number, offset, length):
+    self.chunk_number = chunk_number
+    self.offset = offset
+    self.length = length
+    self.state = unassigned
+    # IDEA: Will worker_number be the get_host_name of a given Bass Cluster worker
+    #self.worker_number = worker_number
+
+    def setState(self, state):
+        self.state = state
+
+    def addWorker(self, worker_number):
+        pass
+        #self.worker_number = worker_number
 class Master(object):
-  map_finished = False #start reducer when all chunks are mapped. 
-  
   def __init__(self):
     gevent.spawn(self.controller)
     self.state = ready
     self.workers = {}
+    self.Bookkeeper = {} #{'w1':['chunk1','working'], 'w2':['chunk2','finished']}
  
   # heartbeat between master and workers  
   def controller(self):
@@ -44,29 +60,51 @@ class Master(object):
   # called by worker for registration
   def register(self, ip, port):
     gevent.spawn(self.register_async, ip, port)
- 
 
+  #TODO called by worker's map() when the worker finishes mapping and askfor more tasks to map.
+  def check_finish_map(self):
+    print 'called by worker to check_finish_map'
 
-  def finish_map(self):
-    map_finished = True
+  def ready_chunk_number(self):
+    i = 0
+    while( i < len(self.Bookkeeper)):
+      if self.Bookkeeper[i].state == unassigned or self.Bookkeeper[i].state == interrupted:
+        return i
+      i = i + 1
+    print 'No ready chunk numbers -- all are finished or currently working'
   
   def mapreduce(self, method_class, chunk_list, num_reducers):
     print 'in mapreduce in master'
+    Bookkeeper = {}  #Create empty Bookkeeper (dict) 
     #TODO  wait for all mapping tasks finished an then master ask for all worker(alive) for partitioned files(if 2 reducers: every worker will have two files: one for reducer 1, one for reducer 2)
-    
+
     # number of chunk that has been worked on
-    c = 1
     procs = []
-    while True:
-      if c > len(chunk_list):
-        break
-      for w in self.workers:
-        if c <= len(chunk_list) and w[0] == ready:
-          print 'worker '+str(w)+' is doing job'+str(c)
-          proc = gevent.spawn(self.workers[w][1].map(), method_class, chunk_list[c], num_reducers)
-          procs.append(proc)
-          c += 1 
+    c = 0 # counter: when c = len(chunk_list) mapper phase is done.
+    while len(self.workers) < 1:
+      gevent.sleep(2)
+      print 'Waiting for workers to register' 
+ 
+    # assign each worker a chunk(chunk_index) to work. 
+    chunk_index  = 0;
+    for w in self.workers:
+      if chunk_index < len(chunk_list):
+        chunk_data = chunk_list[chunk_index] 
+        print 'worker '+str(w)+' is doing chunk'+str(chunk_index)
+        chunk_stat = []   
+        chunk_stat.append(chunk_index)
+        chunk_stat.append(working)
+        self.Bookkeeper[w] = chunk_stat
+        proc = gevent.spawn(self.workers[w][1].map, method_class,chunk_data, num_reducers)
+        #remove chunk from chunk_list when finish the mapping of the chunk
+        print 'before removing from chunk_list:'+ str(chunk_list)
+        del chunk_list[chunk_index]
+        print 'remove chunk #'+str(chunk_index)+' from chunk_list since it is mapped by worker'+str(w)
+        print 'after removing from chunk_list:' + str(chunk_list)
+        procs.append(proc)
     gevent.joinall(procs)
+    
+
     print 'finish mapping '
     # TODO test the result of proc
     print 'print out everything in procs of mapping'  
@@ -75,15 +113,15 @@ class Master(object):
    
     # start reducer, assume no workers die after they finish mapping and before reducers start reducing 
     for r in range(num_reducers):
-      reducer = self.workers[r]
+      reducer = self.workers.get(r)
       print 'worker '+str(r)+' works as reducer'
-      ips_mapper= get_ips_workers(self.workers)
+      ips_mapper= self.get_ips_workers(self.workers)
       # intermediate file of mapper is output1, output2....
       input_file = 'output'+str(r+1)+'.txt'
-      proc = gevent.spawn(self.workers[r][1].reduce(), ips_mapper, input_file)
+      proc = gevent.spawn(self.workers[r][1].reduce, ips_mapper, input_file)
       procs.append(proc)
     gevent.joinall(procs)
-    print 'finish reducing' 
+    print 'finish reducing and print out procs of reducing'  
     for p in procs:
       print p.value
 
