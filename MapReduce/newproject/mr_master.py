@@ -93,7 +93,7 @@ class Master(object):
         print 'worker '+str(w)+' is doing chunk'+str(chunk_index)
         chunk_stat = []   
         chunk_stat.append(chunk_index)
-        chunk_stat.append(working)
+        chunk_stat.append(chunk_data)
         self.Bookkeeper[w] = chunk_stat
         proc = gevent.spawn(self.workers[w][1].map, method_class,chunk_data, num_reducers)
         #remove chunk from chunk_list when finish the mapping of the chunk
@@ -115,7 +115,7 @@ class Master(object):
     for r in range(num_reducers):
       reducer = self.workers.get(r)
       print 'worker '+str(r)+' works as reducer'
-      ips_mapper= self.get_ips_workers(self.workers)
+      ips_mapper= self.get_ips_mappers(self.workers)
       # intermediate file of mapper is output1, output2....
       input_file = 'output'+str(r+1)+'.txt'
       proc = gevent.spawn(self.workers[r][1].reduce, ips_mapper, input_file)
