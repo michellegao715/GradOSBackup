@@ -35,6 +35,9 @@ class Worker(object):
       print "WORKING"
       if method_class == 'wordcount':
         mapper = job.WordCountMap()
+      if method_class == 'hamming':
+        mapper = job.HammingEncodeMap()
+
       # write intermediate file into count_xx.txt 
       chunk = self.fetch_chunk(method_class, chunk_data)
       # map
@@ -69,6 +72,8 @@ class Worker(object):
     print 'in reduce function of mr_worker'
     if method_class == 'wordcount':
       reducer = job.WordCountReduce()
+    if method_class == 'hamming':
+      reducer = job.HammingEncodeReduce()
     table = {}
     for (worker, locations) in file_locations:
       #TODO ask for input_file from ip_mapper 

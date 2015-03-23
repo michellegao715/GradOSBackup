@@ -1,5 +1,7 @@
 import sys
 import mapreduce
+import hamming 
+
 class WordCount(object):
   def __init__(self, input_chunk, map_class, reduce_class):
     self.input_chunk = input_chunk
@@ -46,7 +48,7 @@ class WordCountReduce(mapreduce.Reduce):
     def get_result_list(self):
       return self.result_list
 
-class HammingEncodeMap(mapreduce.Map):
+class HammingEncodeMap(hamming.HammingBinary):
     def __init__(self):
       self.table = {}
     def map(self, k, v):
@@ -57,8 +59,7 @@ class HammingEncodeMap(mapreduce.Map):
         self.table[k].append(v)
       else:
         self.table[k] = [v]
-     
-class HammingEncodeReduce(mapreduce.Reduce):
+class HammingEncodeReduce(hamming.HammingBinary):
     def __init__(self):
       self.result_list = []
     def reduce(self, k, vlist):
@@ -69,4 +70,5 @@ class HammingEncodeReduce(mapreduce.Reduce):
 
     def get_result_list(self):
       return self.result_list
+
 

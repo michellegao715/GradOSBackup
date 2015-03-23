@@ -42,6 +42,8 @@ class HammingFile(object):
    
   # encode one character to 12 bytes 10001....01
   def encode(self,c):
+    return 'in encode function of hamming.py' 
+    ''' 
     positions = self.getParityPositions(c) #get 1,2,4,8 to put parity bit  
     bin_str="{0:08b}".format(ord(c))
     hammingcode = [None]*(len(bin_str)+len(positions))
@@ -59,6 +61,7 @@ class HammingFile(object):
       hammingcode[p-1] = str(self.get_parity(p,hammingcode))
     #print hammingcode
     return ''.join(hammingcode)
+    '''
     """expected 12 length hammingcode""" 
 
   '''pass in multiple 12 bytes hamming code and decode to original char. let ascii/bin encode to exten
