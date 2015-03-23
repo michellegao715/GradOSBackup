@@ -3,6 +3,7 @@ import socket
 import zerorpc
 from zerorpc.exceptions import TimeoutExpired
 import gevent
+import logging
 
 
 ready  = 'READY'
@@ -96,6 +97,7 @@ class Master(object):
         chunk_stat.append(chunk_data)
         self.Bookkeeper[w] = chunk_stat
         proc = gevent.spawn(self.workers[w][1].map, method_class,chunk_data, num_reducers)
+        print 'after map in mapreduce() '
         #remove chunk from chunk_list when finish the mapping of the chunk
         print 'before removing from chunk_list:'+ str(chunk_list)
         del chunk_list[chunk_index]
@@ -103,32 +105,31 @@ class Master(object):
         print 'after removing from chunk_list:' + str(chunk_list)
         procs.append(proc)
     gevent.joinall(procs)
-    
-
-    print 'finish mapping '
-    # TODO test the result of proc
-    print 'print out everything in procs of mapping'  
-    for p in procs:
-      print p.value
-   
+    print 'FINISH MAPPING' 
+    procs = []  #clear the proc for reduce phase
     # start reducer, assume no workers die after they finish mapping and before reducers start reducing 
-    for r in range(num_reducers):
-      reducer = self.workers.get(r)
-      print 'worker '+str(r)+' works as reducer'
-      ips_mapper= self.get_ips_mappers(self.workers)
-      # intermediate file of mapper is output1, output2....
-      input_file = 'output'+str(r+1)+'.txt'
-      proc = gevent.spawn(self.workers[r][1].reduce, ips_mapper, input_file)
-      procs.append(proc)
+    num = 0 # find two reducers 
+    for reducer in self.workers:
+      if num <= (num_reducers-1):
+        ips_mapper= self.get_ips_mappers(self.workers)
+        input_file = 'wordcount'+str(num)+'.txt'
+        num +=1 
+        print '-----------------'
+        print 'reducer is :'+str(self.workers[reducer][1])
+        proc = gevent.spawn(self.workers[reducer][1].reduce, method_class, ips_mapper, input_file)
+        procs.append(proc)
+      else:
+        break
     gevent.joinall(procs)
     print 'finish reducing and print out procs of reducing'  
+    print len(procs)
     for p in procs:
       print p.value
-
+    
   def get_ips_mappers(self, workers):
     ips = []
     for w in workers:
-      ips.append(w[0])
+      ips.append(w[0]+':'+w[1])
     return ips
 
 if __name__=='__main__':
@@ -138,3 +139,4 @@ if __name__=='__main__':
   # TODO   data_dir = sys.argv[2]
   s.bind('tcp://'+ master_ip +':'+ port)
   s.run() 
+  logging.basicConfig()

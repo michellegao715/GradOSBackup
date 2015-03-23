@@ -25,30 +25,26 @@ class Worker(object):
 
   # chunk_data: <offset, length> 
   def map(self, method_class, chunk_data, num_reducers):
-    print 'in map() function in worker' 
     if method_class == 'wordcount':
       mapper = job.WordCountMap()
-      reducer = job.WordCountReduce()
     #TODO copy do_work from job.py of old version 
     # write intermediate file into count_xx.txt 
     chunk = self.fetch_chunk(method_class, chunk_data)
     # map
     for i,v in enumerate(chunk):
-      print 'in map() of worker, and word in chunk is '+v
       mapper.map(i,v)
     map_table = mapper.get_table()
     map_keys = map_table.keys()
     print 'keys :'+str(map_keys)
     # write to intermediate_file 
     out_files = self.create_file(method_class, num_reducers) 
+    fs = []  # Open all intermediate files and write <key,vlist> to them
+    for f in out_files:
+      out_file = open(f,'w')
+      fs.append(out_file)
     for key in map_keys:
-      output_file=out_files[hash(key)%num_reducers]
-      print 'the output_file is '+str(output_file)+' ,and write key:'+key+' to file'
-      f=open(output_file,'a')
-      f.write(key + ":"+ str(map_table[key])+' ')
-
+      fs[hash(key)%num_reducers].write(key + '\n'+ '\t'.join(map_table[key])+'\n')
     #Ask for extra chunk after finish current chunk and if there is still left in chunk_list
-    f.close()
     c = zerorpc.Client()
     c.connect(master_addr)
     c.check_finish_map()
@@ -60,10 +56,54 @@ class Worker(object):
       fs.append(f)
     return fs
 
-  # TODO ask every worker in ips_mapper for input_file and then reduce 
-  def reduce(self, ips_mapper, input_file):
-    print 'in reducing method in mr_worker' 
+  # TODO ask every worker in ips_mapper for interdemiate file(each ip_mapper should have num_reducers' intermediate files
+  def reduce(self, method_class, ips_mapper, input_file):
+    print 'in reduce function of mr_worker'
+    if method_class == 'wordcount':
+      reducer = job.WordCountReduce()
+    table = {}
+    for ip_mapper in ips_mapper:
+      #TODO ask for input_file from ip_mapper 
+      print 'try to ask input file from ip_mapper'
+      c = zerorpc.Client()
+      c.connect('tcp://'+ip_mapper)
+      lines = c.get_file(input_file)
+      # even line(line 0,2,4....) is key, odd line(line 1,3,5...) is vlist
+      # Prepare table{<k,vlist>,<k,vlist>,....} for reducing 
+      line = ' '
+      i = 0
+      lines = map(lambda s: s.strip(), lines)
+      while i < len(lines) and (len(line) > 0):
+        line = lines[i]
+        i+=1
+        key = line
+        print 'key is '+str(key)
+        line = lines[i]
+        i+=1
+        vlist = line.split('\t')
+        if len(line) == 0:
+          break
+        print 'vlist is '+str(vlist)
+        if key in table:
+          table[key].append(vlist)
+        else:
+          table[key] = vlist
+    keys = table.keys()
+    for k in keys:
+      print 'the vlist for '+k+' is:'+str(table[k])
+      reducer.reduce(k, table[k])          
+    result_list = reducer.get_result_list()
+    print 'after reducing:'+str(result_list)
+    return result_list
   
+  def get_file(self, input_file):
+    f = open(input_file, 'r')
+    lines = f.readlines()
+    return lines
+
+  def return_reduced_file(self, input_file):
+    f = open(input_file, 'r')
+
   def fetch_chunk(self, mapreduce_method, chunk_data):
     in_file = open('StarSpangledBanner.txt','rb')  
     offset = chunk_data[0]

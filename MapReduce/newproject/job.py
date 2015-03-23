@@ -31,9 +31,12 @@ class WordCountMap(mapreduce.Map):
     def get_table(self):
       return self.table
 class WordCountReduce(mapreduce.Reduce):
+    def __init__(self):
+      self.result_list = []
     def reduce(self, k, vlist):
       count = 0
       for v in vlist:
+        print 'v in vlist is :'+v
         count = count + int(v)
       self.emit(k + ':' + str(count))
       
