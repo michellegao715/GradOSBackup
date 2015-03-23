@@ -68,17 +68,18 @@ class Master(object):
 
   def register(self, ip, port):
     gevent.spawn(self.register_async, ip, port)
-
+    
+  # handle worker failure, pass the last job is is mapping to an available worker. 
   def reschedule_job(worker):
     if worker in self.bookkeeper and len(self.bookkeeper[worker]) > 0:
       chunk = self.bookkeeper[worker][-1][0]
       del self.bookkeeper[worker][-1]
       self.chunklist.append(chunk)
 
-  #TODO called by worker's map() when the worker finishes mapping and askfor more tasks to map, if not finished, choose unmapped chunk from chunklist and let the worker who calls this function to keep mapping 
+  # Called in worker's map() when the worker finishes mapping and askfor more tasks to map, if not finished, choose unmapped chunk from chunklist and let the worker who calls this function to keep mapping 
   def check_finish_map(self, ip, port):
     print 'called by worker to check_finish_map'
-    print 'there is '+str(len(self.chunklist))+' chunks to map' 
+    print 'there is '+str(len(self.chunklist))+' chunks left to map' 
     self.bookkeeper[(ip,port)][-1][1] = 'done'
     if len(self.chunklist) == 0:
       self.map_finished = True
@@ -89,16 +90,7 @@ class Master(object):
       self.bookkeeper[(ip,port)].append([chunk, 'running'])
       return chunk
 
-  """
-  def ready_chunk_number(self):
-    i = 0
-    while( i < len(self.bookkeeper)):
-      if self.bookkeeper[i].state == unassigned or self.bookkeeper[i].state == interrupted:
-        return i
-      i = i + 1
-    print 'No ready chunk numbers -- all are finished or currently working'
-  """
-
+  
   def mapreduce_reduce(self, method_class, num_reducers):
     print 'START REDUCING'
     procs = []  #clear the proc for reduce phase
@@ -115,7 +107,7 @@ class Master(object):
       else:
         break
     gevent.joinall(procs)
-    print 'finish reducing and print out procs of reducing'  
+    print 'finish reducing and print out procs values of reducing'  
     print len(procs)
     for p in procs:
       print p.value

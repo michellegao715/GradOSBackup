@@ -15,6 +15,7 @@ class WordCountMap(mapreduce.Map):
       #words = v.split()
       #for w in words:
       self.emit(v, '1')
+    
     def emit(self, k, v):
       if k in self.table:
         self.table[k].append(v)
@@ -46,7 +47,26 @@ class WordCountReduce(mapreduce.Reduce):
       return self.result_list
 
 class HammingEncodeMap(mapreduce.Map):
-  pass 
+    def __init__(self):
+      self.table = {}
+    def map(self, k, v):
+      self.emit(k,self.encode(v))
+  # encode one character to 12 bytes 10001...01
+    def emit(self, k, v):
+      if k in self.table:
+        self.table[k].append(v)
+      else:
+        self.table[k] = [v]
+     
 class HammingEncodeReduce(mapreduce.Reduce):
-  pass
-      
+    def __init__(self):
+      self.result_list = []
+    def reduce(self, k, vlist):
+      self.emit(k,vlist[0])
+    
+    def emit(self,v):
+      self.result_list.append(v)
+
+    def get_result_list(self):
+      return self.result_list
+
