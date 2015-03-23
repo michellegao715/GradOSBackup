@@ -36,7 +36,6 @@ class WordCountReduce(mapreduce.Reduce):
     def reduce(self, k, vlist):
       count = 0
       for v in vlist:
-        print 'v in vlist is :'+v
         count = count + int(v)
       self.emit(k + ':' + str(count))
       

@@ -83,6 +83,9 @@ if __name__ == '__main__':
 
   f = open(input_file)
   chunk_list = job.split_into_chunks(method_class,split_size,input_file)
+
+  print("CHUCK LIST")
+  print chunk_list
   
   # pass mapreduce tasks(self.chunk_list, #ofReducers, method_class) to master. 
   c = zerorpc.Client()
