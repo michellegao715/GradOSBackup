@@ -54,6 +54,7 @@ class Master(object):
         except TimeoutExpired:
           print 'worker failure '+w[0]
           self.workers[w][0] = interrupted
+          self.reschedule_job(self.workers[w][1])
       gevent.sleep(1) 
 
   def register_async(self, ip, port):
@@ -67,6 +68,12 @@ class Master(object):
 
   def register(self, ip, port):
     gevent.spawn(self.register_async, ip, port)
+
+  def reschedule_job(worker):
+    if worker in self.bookkeeper and len(self.bookkeeper[worker]) > 0:
+      chunk = self.bookkeeper[worker][-1][0]
+      del self.bookkeeper[worker][-1]
+      self.chunklist.append(chunk)
 
   #TODO called by worker's map() when the worker finishes mapping and askfor more tasks to map, if not finished, choose unmapped chunk from chunklist and let the worker who calls this function to keep mapping 
   def check_finish_map(self, ip, port):
