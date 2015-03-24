@@ -33,6 +33,8 @@ class Worker(object):
     c.connect(master_addr)
     # while(check_finish_map(self.ip, self.port) != None):
     while(chunk_data != False):
+      print 'CAN KILL WORKER NOW TO HANDLE WORKER FAILURE' 
+      gevent.sleep(3)
       print "WORKING"
       if method_class == 'wordcount':
         mapper = job.WordCountMap()
