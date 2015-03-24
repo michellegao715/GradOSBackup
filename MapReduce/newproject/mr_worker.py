@@ -71,6 +71,7 @@ class Worker(object):
   # `ask every worker in ips_mapper for interdemiate file(each ip_mapper should have num_reducers' intermediate files
   def reduce(self, method_class, file_locations):
     print 'in reduce function of mr_worker'
+    print file_locations
     if method_class == 'wordcount':
       reducer = job.WordCountReduce()
     if method_class == 'hamming':
@@ -158,7 +159,8 @@ class Worker(object):
 
 
 if __name__ == '__main__':
-  ip = socket.gethostbyname(socket.gethostname())
+  # ip = socket.gethostbyname(socket.gethostname())
+  ip = sys.argv[1]  # type in the worker's ip
   port = '4243'
   #TODO pass method and chunkdata for testing
   #method = 'wordcount'

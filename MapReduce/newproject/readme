@@ -28,5 +28,5 @@ mapper_finished()  call worker's reduce() to start reducing part
 Usage: 
 change master_addr in mr_worker.py to current master's ip+port
 terminal 1: python mr_master.py 4242 .
-terminal 2: python mr_worker.py 127.0.0.1:4242 4242
+terminal 2: python mr_worker.py 10.0.0.38
 terminal 3: python mr_job.py 0.0.0.0:4242 hamming 14 2 
