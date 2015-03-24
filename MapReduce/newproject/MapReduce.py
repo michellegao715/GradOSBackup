@@ -33,7 +33,6 @@ class Reduce(object):
 
 
 class Engine(object):
-
     def __init__(self, input_list, map_class, reduce_class):
         self.input_list = input_list
         self.map_class = map_class
