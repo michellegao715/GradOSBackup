@@ -67,7 +67,7 @@ class Worker(object):
       fs.append(f)
     return fs
 
-  # TODO ask every worker in ips_mapper for interdemiate file(each ip_mapper should have num_reducers' intermediate files
+  # `ask every worker in ips_mapper for interdemiate file(each ip_mapper should have num_reducers' intermediate files
   def reduce(self, method_class, file_locations):
     print 'in reduce function of mr_worker'
     if method_class == 'wordcount':
@@ -75,9 +75,15 @@ class Worker(object):
     if method_class == 'hamming':
       reducer = job.HammingEncodeReduce()
     table = {}
+    # file_locations of intermediate files: ['wordcount0_0.txt', wordcount0_106.txt',...] Name the reduce output file to be wordcount0.txt and write the result_list which is the result of reducing to it.
+    #print 'file_locations[0]: '+str(file_locations[0])
+    #print 'file_locations[0][0]:'+str(file_locations[0][0])
+    r = file_locations[0][1][0].index('_') 
+    reduce_file = file_locations[0][1][0][:r] 
+    print '-----------------------------'
+    print 'name of reduce_file is '+reduce_file
     for (worker, locations) in file_locations:
-      #TODO ask for input_file from ip_mapper 
-      print 'try to ask input file from ip_mapper'
+      print 'try to ask intermediate file from mapper'
       lines = self.get_file(worker, locations)
       # even line(line 0,2,4....) is key, odd line(line 1,3,5...) is vlist
       # Prepare table{<k,vlist>,<k,vlist>,....} for reducing 
@@ -101,6 +107,9 @@ class Worker(object):
       print 'the vlist for '+k+' is:'+str(table[k])
       reducer.reduce(k, table[k])          
     result_list = reducer.get_result_list()
+    reduce_f = open(reduce_file, 'w') 
+    reduce_f.write(str(result_list))
+    reduce_f.close()
     print 'after reducing:'+str(result_list)
     return result_list
   
