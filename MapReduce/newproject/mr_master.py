@@ -119,6 +119,7 @@ class Master(object):
     return locations
     
   def mapreduce(self, method_class, chunk_list, num_reducers):
+    print 'in mapreduce of master' 
     self.chunklist = chunk_list
     self.method_class = method_class
     self.num_reducers = num_reducers
