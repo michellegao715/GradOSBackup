@@ -123,6 +123,7 @@ class Worker(object):
       print 'the worker mapper is :'+str(worker)
       print 'worker ip is :'+str(worker[0])
       print 'worker port is :'+str(worker[0])
+      
       c.connect('tcp://' + worker[0]+':'+worker[1])
       return c.read_file(locations)
 
