@@ -54,7 +54,7 @@ class Master(object):
         except TimeoutExpired:
           print 'worker failure '+w[0]
           self.workers[w][0] = interrupted
-          self.reschedule_job(self.workers[w][1])
+          self.reschedule_job(w)
       gevent.sleep(1) 
 
   def register_async(self, ip, port):
@@ -70,7 +70,7 @@ class Master(object):
     gevent.spawn(self.register_async, ip, port)
     
   # handle worker failure, pass the last job is is mapping to an available worker. 
-  def reschedule_job(worker):
+  def reschedule_job(self, worker):
     if worker in self.bookkeeper and len(self.bookkeeper[worker]) > 0:
       chunk = self.bookkeeper[worker][-1][0]
       del self.bookkeeper[worker][-1]
