@@ -157,11 +157,14 @@ if __name__ == '__main__':
   ip = socket.gethostbyname(socket.gethostname())
   port = '4243'
   #TODO pass method and chunkdata for testing
-  method = 'wordcount'
+  #method = 'wordcount'
   s = zerorpc.Server(Worker(ip,port))
+  print 'after open new Worker:'+str(ip)+':'+str(port)
   s.bind('tcp://'+ip+':'+port)
   c = zerorpc.Client()
+  print 'before connect to master'
   c.connect(master_addr)
+  print 'after connect to master'
   c.register(ip,port)
   s.run()
 

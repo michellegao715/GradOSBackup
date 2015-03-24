@@ -166,9 +166,10 @@ class Master(object):
 
 if __name__=='__main__':
   s = zerorpc.Server(Master())
-  master_ip = '127.0.0.1'
+  master_ip = '0.0.0.0'
   port = sys.argv[1]
   # TODO   data_dir = sys.argv[2]
   s.bind('tcp://'+ master_ip +':'+ port)
+  print 'ip of master is :'+socket.gethostbyname(socket.gethostname())
   s.run() 
   logging.basicConfig()
