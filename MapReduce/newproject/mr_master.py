@@ -36,7 +36,7 @@ class Master(object):
     gevent.spawn(self.controller)
     self.state = ready
     self.workers = {}
-    self.bookkeeper = {} #{'w1':['chunk1','working'], 'w2':['chunk2','finished']}
+    self.bookkeeper = {} #{'w1':[['chunk1','working'],['chunk3','working']], 'w2':['chunk2','finished']}
     self.chunklist = [] 
     self.method_class = '' 
     self.num_reducers = 0

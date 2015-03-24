@@ -1,3 +1,10 @@
+Implementation:
+mr_job:
+function: split_into_chunks : 
+Splitting whole file by split_size(based on  mapreduce operation such as wordcount and hamming
+encode) and 
+
+
 Chunk_list has all chunks that need to be mapped and reduced. 
 First assign each worker a chunk_data to map, when a worker finish its task, it will call mr_master's check_map_finish() to check if there is still mapper tasks left, if yes then master will give the worker a task to do; if not, start the reduce part.  This way, it will avoid busy wait of master to assign the rest of tasks to available workers. 
 
@@ -16,3 +23,9 @@ else return false;
 
 ########
 mapper_finished()  call worker's reduce() to start reducing part
+
+
+Usage: 
+terminal 1: python mr_master.py 4242 .
+terminal 2: python mr_worker.py 127.0.0.1:4242 4242 
+terminal 3: python mr_job.py 0.0.0.0:4242 hamming 14 2 

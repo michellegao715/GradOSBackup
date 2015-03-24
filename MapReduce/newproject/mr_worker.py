@@ -35,7 +35,7 @@ class Worker(object):
       print "WORKING"
       if method_class == 'wordcount':
         mapper = job.WordCountMap()
-      if method_class == 'hamming':
+      if method_class in ['hamming_enc','hamming_dec','hamming_err','hamming_chk','hamming_fix']:
         mapper = job.HammingEncodeMap()
 
       # write intermediate file into count_xx.txt 
