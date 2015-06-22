@@ -7,7 +7,8 @@ import job
 import string 
 
 #master_addr="tcp://127.0.0.1:4242"
-master_addr="tcp://10.0.0.25:4242"
+#master_addr="tcp://10.0.0.25:4242"
+master_addr="tcp://76.103.14.70:4242" 
 # python mr_worker.py <ip_address_master:port>
 class Worker(object):
   ''' def __init__(self, chunk_data, mapreduce_method):

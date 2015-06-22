@@ -1,0 +1,21 @@
+import mr_worker
+import string
+import mapreduce
+import job
+
+chunk_data=[10,10]
+method = 'wordcount'
+w = mr_worker.Worker(chunk_data, method)
+w.map(method, chunk_data, 2)
+
+
+run mr_master: 
+python mr_master.py 4242 .
+
+run mr_worker:
+python mr_worker.py 127.0.0.1:4242  
+
+run mr_job:
+python mr_job.py 0.0.0.0:4242 wordcount 100 2 StarSpangleBanner.txt wordcout 
+
+
