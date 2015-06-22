@@ -1,0 +1,32 @@
+Implementation:
+mr_job:
+function: split_into_chunks : 
+Splitting whole file by split_size(based on  mapreduce operation such as wordcount and hamming
+encode) and 
+
+
+Chunk_list has all chunks that need to be mapped and reduced. 
+First assign each worker a chunk_data to map, when a worker finish its task, it will call mr_master's check_map_finish() to check if there is still mapper tasks left, if yes then master will give the worker a task to do; if not, start the reduce part.  This way, it will avoid busy wait of master to assign the rest of tasks to available workers. 
+
+Bookkeeper: a dictionary of {worker:[chunk_data, status], ....} which indicates which worker is working on which chunk and the status of the chunk(working, finished)
+Update Bookkeeper and chunk_list in mr_master when a worker dies, assign a chunk to worker and  worker finished a chunk. 
+
+
+mr_master:
+mapreduce:
+worker.map()  ---> mr_worker.map(): after finish mapping the chunk assigned, callmr_master's check_finished_map(): 
+
+
+check_finished_map():
+if(len(chunk_list) <= 0) return true; 
+else return false; 
+
+########
+mapper_finished()  call worker's reduce() to start reducing part
+
+
+Usage: 
+change master_addr in mr_worker.py to current master's ip+port
+terminal 1: python mr_master.py 4242 .
+terminal 2: python mr_worker.py 10.0.0.38
+terminal 3: python mr_job.py 0.0.0.0:4242 hamming 14 2 
