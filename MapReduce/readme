@@ -1,2 +1,0 @@
-python mr_master.py 4242 /CS636
-python mr_worker.py 127.0.0.1:4242
